@@ -1,12 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { RiCloseFill } from "react-icons/ri";
+import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppStore } from "@/store";
 import { HOST } from "@/lib/constants";
 import { getColor } from "@/lib/utils";
 
 const ChatHeader = () => {
-  const { selectedChatData, selectedChatType, onlineUsers } = useAppStore();
+  const {
+    selectedChatData,
+    selectedChatType,
+    onlineUsers,
+    mutedChats,
+    toggleChatMute,
+  } = useAppStore();
+  const isMuted = mutedChats.includes(selectedChatData._id);
   const navigate = useNavigate();
   const closeChat = () => {
     if (window.history.state?.idx > 0) navigate(-1);
@@ -73,7 +81,20 @@ const ChatHeader = () => {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-center gap-5">
+      <div className="flex items-center justify-center gap-4 sm:gap-5">
+        <button
+          title={isMuted ? "Unmute notifications" : "Mute notifications"}
+          className={`focus:outline-none transition-all duration-300 ${
+            isMuted ? "text-neutral-500" : "text-neutral-300 hover:text-white"
+          }`}
+          onClick={() => toggleChatMute(selectedChatData._id)}
+        >
+          {isMuted ? (
+            <IoNotificationsOff className="text-2xl" />
+          ) : (
+            <IoNotifications className="text-2xl" />
+          )}
+        </button>
         <button
           className="text-neutral-300 focus:border-none focus:outline-none focus:text-white transition-all duration-300"
           onClick={closeChat}

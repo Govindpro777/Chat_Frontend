@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { registerServiceWorker } from "@/lib/notifications";
 import {
   BrowserRouter as Router,
   Routes,
@@ -22,6 +24,21 @@ const AuthRoute = ({ children }) => {
   const { userInfo } = useAppStore();
   const isAuthenticated = !!userInfo;
   return isAuthenticated ? <Navigate to="/chat" /> : children;
+};
+
+// Registers the service worker and opens the right chat when a notification is clicked
+const NotificationBridge = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    registerServiceWorker();
+    const onMessage = (event) => {
+      if (event.data?.type === "open-chat") navigate(event.data.url);
+    };
+    navigator.serviceWorker?.addEventListener("message", onMessage);
+    return () =>
+      navigator.serviceWorker?.removeEventListener("message", onMessage);
+  }, [navigate]);
+  return null;
 };
 
 function App() {
@@ -59,6 +76,7 @@ function App() {
 
   return (
     <Router>
+      <NotificationBridge />
       <Routes>
         <Route
           path="/auth"

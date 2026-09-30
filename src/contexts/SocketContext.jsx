@@ -1,4 +1,5 @@
-import { SOCKET_HOST } from "@/lib/constants";
+import { HOST, MESSAGE_TYPES, SOCKET_HOST } from "@/lib/constants";
+import { playNotificationSound, showNotification } from "@/lib/notifications";
 import { useAppStore } from "@/store";
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
@@ -8,6 +9,29 @@ const SocketContext = createContext(null);
 export const useSocket = () => {
   return useContext(SocketContext);
 };
+
+// Notify for a message unless it is muted or the user is already looking at that chat
+const notifyIncoming = ({ chatId, type, senderId, title, body, image }) => {
+  const state = useAppStore.getState();
+  if (senderId === state.userInfo?.id) return;
+  if (!state.notificationsEnabled || state.mutedChats.includes(chatId)) return;
+
+  const viewingChat =
+    state.selectedChatData?._id === chatId && !document.hidden;
+  if (viewingChat) return;
+
+  if (state.notificationSound) playNotificationSound();
+  showNotification({
+    title,
+    body: state.notificationPreview ? body : "New message",
+    tag: chatId,
+    url: `/chat/${type}/${chatId}`,
+    icon: image ? `${HOST}/${image}` : undefined,
+  });
+};
+
+const messageBody = (message) =>
+  message.messageType === MESSAGE_TYPES.FILE ? "Sent a file" : message.content;
 
 export const SocketProvider = ({ children }) => {
   const socket = useRef();
@@ -40,6 +64,16 @@ export const SocketProvider = ({ children }) => {
           addMessage(message);
         }
         addContactInDMContacts(message);
+
+        const sender = message.sender;
+        notifyIncoming({
+          chatId: sender._id,
+          type: "contact",
+          senderId: sender._id,
+          title: `${sender.firstName || sender.email} ${sender.lastName || ""}`.trim(),
+          body: messageBody(message),
+          image: sender.image,
+        });
       };
 
       const handleReceiveChannelMessage = (message) => {
@@ -57,6 +91,19 @@ export const SocketProvider = ({ children }) => {
           addMessage(message);
         }
         addChannelInChannelLists(message);
+
+        const channel = useAppStore
+          .getState()
+          .channels.find((c) => c._id === message.channelId);
+        const sender = message.sender;
+        notifyIncoming({
+          chatId: message.channelId,
+          type: "channel",
+          senderId: sender._id,
+          title: channel?.name ? `#${channel.name}` : "New channel message",
+          body: `${sender.firstName || sender.email}: ${messageBody(message)}`,
+          image: sender.image,
+        });
       };
 
       const addNewChannel = (channel) => {

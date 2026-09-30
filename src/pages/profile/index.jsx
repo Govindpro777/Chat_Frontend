@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { IoArrowBack } from "react-icons/io5";
 import { colors } from "@/lib/utils";
+import NotificationSettings from "@/components/common/notification-settings";
 
 const Profile = () => {
   const { userInfo, setUserInfo } = useAppStore();
@@ -215,6 +216,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
+        <NotificationSettings />
         <div className="w-full">
           <Button
             className="h-16 w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300"
