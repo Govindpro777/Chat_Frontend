@@ -1,5 +1,6 @@
 import { useAppStore } from "@/store";
 import apiClient from "@/lib/api-client";
+import { removePushSubscription } from "@/lib/push";
 import { HOST, LOGOUT_ROUTE } from "@/lib/constants";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import {
@@ -18,6 +19,8 @@ const ProfileInfo = () => {
   const navigate = useNavigate();
   const logout = async () => {
     try {
+      // Must run while the token is still valid
+      await removePushSubscription();
       const response = await apiClient.post(
         LOGOUT_ROUTE,
         {},

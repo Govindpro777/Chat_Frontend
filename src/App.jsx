@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerServiceWorker } from "@/lib/notifications";
+import { removePushSubscription, syncPushSubscription } from "@/lib/push";
 import {
   BrowserRouter as Router,
   Routes,
@@ -29,6 +30,25 @@ const AuthRoute = ({ children }) => {
 // Registers the service worker and opens the right chat when a notification is clicked
 const NotificationBridge = () => {
   const navigate = useNavigate();
+  const userId = useAppStore((s) => s.userInfo?.id);
+  const notificationsEnabled = useAppStore((s) => s.notificationsEnabled);
+  const notificationPreview = useAppStore((s) => s.notificationPreview);
+  const mutedChats = useAppStore((s) => s.mutedChats);
+
+  // Keep the server's copy of this device's notification settings up to date
+  useEffect(() => {
+    if (!userId) return;
+    if (notificationsEnabled) {
+      syncPushSubscription({
+        enabled: true,
+        preview: notificationPreview,
+        mutedChats,
+      });
+    } else {
+      removePushSubscription();
+    }
+  }, [userId, notificationsEnabled, notificationPreview, mutedChats]);
+
   useEffect(() => {
     registerServiceWorker();
     const onMessage = (event) => {
