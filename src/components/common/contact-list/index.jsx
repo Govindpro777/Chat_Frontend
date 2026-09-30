@@ -2,7 +2,7 @@ import { HOST } from "@/lib/constants";
 import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
 import { useNavigate, useParams } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const ContactList = ({ contacts, isChannel = false }) => {
   const {
@@ -37,15 +37,15 @@ const ContactList = ({ contacts, isChannel = false }) => {
           }`}
           onClick={() => handleClick(contact)}
         >
-          <div className="flex gap-5 items-center justify-start text-neutral-300">
+          <div className="flex gap-3 sm:gap-5 items-center justify-start text-neutral-300 pr-3">
             {!isChannel && (
-              <div className="relative">
-              <Avatar className="h-10 w-10 ">
+              <div className="relative shrink-0">
+              <Avatar className="h-10 w-10 shrink-0">
                 {contact.image && (
                   <AvatarImage
                     src={`${HOST}/${contact.image}`}
                     alt="profile"
-                    className="rounded-full bg-cover h-full w-full"
+                    className="rounded-full object-cover h-full w-full"
                   />
                 )}
 
@@ -72,9 +72,9 @@ const ContactList = ({ contacts, isChannel = false }) => {
               </div>
             )}
             {isChannel ? (
-              <span>{contact.name}</span>
+              <span className="truncate min-w-0">{contact.name}</span>
             ) : (
-              <span>{`${contact.firstName} ${contact.lastName}`}</span>
+              <span className="truncate min-w-0 text-sm sm:text-base">{`${contact.firstName} ${contact.lastName}`}</span>
             )}
           </div>
         </div>

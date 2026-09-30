@@ -2,7 +2,7 @@ import { useAppStore } from "@/store";
 import apiClient from "@/lib/api-client";
 import { removePushSubscription } from "@/lib/push";
 import { HOST, LOGOUT_ROUTE } from "@/lib/constants";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
