@@ -4,6 +4,7 @@ import { registerServiceWorker } from "@/lib/notifications";
 import { removePushSubscription, syncPushSubscription } from "@/lib/push";
 import { FullPageLoader, TopProgressBar } from "@/components/common/loader";
 import ConnectionBanner from "@/components/common/connection-banner";
+import CallOverlay from "@/components/common/call-overlay";
 import {
   BrowserRouter as Router,
   Routes,
@@ -105,6 +106,7 @@ function App() {
     <Router>
       <TopProgressBar />
       <ConnectionBanner />
+      <CallOverlay />
       <NotificationBridge />
       <Routes>
         <Route

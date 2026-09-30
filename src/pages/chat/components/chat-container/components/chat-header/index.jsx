@@ -4,10 +4,13 @@ import { RiCloseFill } from "react-icons/ri";
 import {
   IoInformationCircleOutline,
   IoSearch,
+  IoCallOutline,
+  IoVideocamOutline,
   IoNotifications,
   IoNotificationsOff,
 } from "react-icons/io5";
 import ChannelInfo from "../channel-info";
+import { startCall } from "@/lib/call";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppStore } from "@/store";
 import { HOST } from "@/lib/constants";
@@ -25,6 +28,7 @@ const ChatHeader = () => {
     setChatSearch,
     resetChatSearch,
   } = useAppStore();
+  const callStatus = useAppStore((s) => s.call.status);
   const searchOpen =
     chatSearch.open && chatSearch.chatId === selectedChatData._id;
   const toggleSearch = () =>
@@ -116,6 +120,26 @@ const ChatHeader = () => {
         </div>
       </div>
       <div className="flex items-center justify-center gap-3 sm:gap-5">
+        {selectedChatType === "contact" && (
+          <>
+            <button
+              title="Voice call"
+              disabled={callStatus !== "idle"}
+              className="text-neutral-300 hover:text-white focus:outline-none transition-all duration-300 disabled:opacity-40"
+              onClick={() => startCall(selectedChatData, "audio")}
+            >
+              <IoCallOutline className="text-xl sm:text-2xl" />
+            </button>
+            <button
+              title="Video call"
+              disabled={callStatus !== "idle"}
+              className="text-neutral-300 hover:text-white focus:outline-none transition-all duration-300 disabled:opacity-40"
+              onClick={() => startCall(selectedChatData, "video")}
+            >
+              <IoVideocamOutline className="text-xl sm:text-2xl" />
+            </button>
+          </>
+        )}
         <button
           title="Search in chat"
           className={`focus:outline-none transition-all duration-300 ${

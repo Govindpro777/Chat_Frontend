@@ -1,6 +1,7 @@
 import { HOST, MESSAGE_TYPES, SOCKET_HOST } from "@/lib/constants";
 import { playNotificationSound, showNotification } from "@/lib/notifications";
 import { flushOutbox } from "@/lib/outbox";
+import { registerCallHandlers } from "@/lib/call";
 import { useAppStore } from "@/store";
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
@@ -46,6 +47,7 @@ export const SocketProvider = ({ children }) => {
         reconnectionDelayMax: 5000,
       });
       socket.current = current;
+      const unregisterCalls = registerCallHandlers(current);
 
       // Connection state drives the banner, the offline queue and re-syncing
       let hasConnectedOnce = false;
@@ -202,6 +204,7 @@ export const SocketProvider = ({ children }) => {
         window.removeEventListener("online", reconnectNow);
         window.removeEventListener("offline", handleOffline);
         document.removeEventListener("visibilitychange", handleVisible);
+        unregisterCalls();
         current.disconnect();
       };
     }
