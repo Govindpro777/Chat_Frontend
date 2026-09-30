@@ -134,6 +134,11 @@ export const SocketProvider = ({ children }) => {
         }
       };
 
+      const handleMessageDeleted = ({ messageId }) => {
+        useAppStore.getState().removeMessage(messageId);
+      };
+
+      socket.current.on("message-deleted", handleMessageDeleted);
       socket.current.on("typing", handleTyping);
       socket.current.on("online-users", handleOnlineUsers);
       socket.current.on("messages-seen", handleMessagesSeen);

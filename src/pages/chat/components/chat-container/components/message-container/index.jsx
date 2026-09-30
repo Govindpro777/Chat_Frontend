@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import apiClient from "@/lib/api-client";
 import {
   FETCH_ALL_MESSAGES_ROUTE,
+  DELETE_FILE_MESSAGE,
   GET_CHANNEL_MESSAGES,
   HOST,
   MESSAGE_TYPES,
@@ -13,7 +14,8 @@ import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { IoMdArrowRoundDown } from "react-icons/io";
 import { IoCloseSharp } from "react-icons/io5";
-import { MdFolderZip } from "react-icons/md";
+import { MdFolderZip, MdDeleteOutline } from "react-icons/md";
+import { toast } from "sonner";
 
 const MessageContainer = () => {
   const [showImage, setShowImage] = useState(false);
@@ -27,6 +29,7 @@ const MessageContainer = () => {
     setDownloadProgress,
     setIsDownloading,
     typingUsers,
+    removeMessage,
   } = useAppStore();
   const messageEndRef = useRef(null);
   const socket = useSocket();
@@ -86,6 +89,29 @@ const MessageContainer = () => {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [selectedChatMessages, typingUsers]);
+
+  const deleteAttachment = async (message) => {
+    try {
+      await apiClient.delete(`${DELETE_FILE_MESSAGE}/${message._id}`, {
+        withCredentials: true,
+      });
+      removeMessage(message._id);
+    } catch (error) {
+      console.log(error);
+      toast.error("Could not delete the attachment.");
+    }
+  };
+
+  const renderDeleteButton = (message) => (
+    <button
+      type="button"
+      title="Delete attachment"
+      onClick={() => deleteAttachment(message)}
+      className="absolute -top-2 -right-2 z-[1] flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white/80 shadow hover:bg-red-600 hover:text-white transition-colors"
+    >
+      <MdDeleteOutline className="text-base" />
+    </button>
+  );
 
   const checkIfImage = (filePath) => {
     const imageRegex =
@@ -157,12 +183,13 @@ const MessageContainer = () => {
         )}
         {message.messageType === MESSAGE_TYPES.FILE && (
           <div
-            className={`${
+            className={`relative ${
               message.sender !== selectedChatData._id
                 ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
                 : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
             } border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left`}
           >
+            {message.sender === userInfo.id && renderDeleteButton(message)}
             {checkIfImage(message.fileUrl) ? (
               <div
                 className="cursor-pointer"
@@ -226,12 +253,13 @@ const MessageContainer = () => {
         )}
         {message.messageType === MESSAGE_TYPES.FILE && (
           <div
-            className={`${
+            className={`relative ${
               message.sender._id === userInfo.id
                 ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
                 : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
             } border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
           >
+            {message.sender._id === userInfo.id && renderDeleteButton(message)}
             {checkIfImage(message.fileUrl) ? (
               <div
                 className="cursor-pointer"

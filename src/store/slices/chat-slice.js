@@ -28,6 +28,12 @@ export const createChatSlice = (set, get) => ({
     set({ selectedChatMessages }),
   setDirectMessagesContacts: (directMessagesContacts) =>
     set({ directMessagesContacts }),
+  removeMessage: (messageId) =>
+    set({
+      selectedChatMessages: get().selectedChatMessages.filter(
+        (m) => m._id !== messageId
+      ),
+    }),
   markMessagesSeen: (viewerId, seenAt) => {
     const { userInfo, selectedChatMessages } = get();
     set({
