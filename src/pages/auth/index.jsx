@@ -54,8 +54,8 @@ const Auth = () => {
         if (response.data.user.id) {
           localStorage.setItem("access-token", response.data.token);
           setUserInfo(response.data.user);
-          if (response.data.user.profileSetup) navigate("/chat");
-          else navigate("/profile");
+          if (response.data.user.profileSetup) navigate("/chat", { replace: true });
+          else navigate("/profile", { replace: true });
         } else {
           console.log("error");
         }
@@ -79,7 +79,7 @@ const Auth = () => {
         if (response.status === 201) {
           localStorage.setItem("access-token", response.data.token);
           setUserInfo(response.data.user);
-          navigate("/profile");
+          navigate("/profile", { replace: true });
         }
       }
     } catch (error) {

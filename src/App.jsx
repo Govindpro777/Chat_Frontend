@@ -18,13 +18,13 @@ import { useAppStore } from "@/store";
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
   const isAuthenticated = !!userInfo;
-  return isAuthenticated ? children : <Navigate to="/auth" />;
+  return isAuthenticated ? children : <Navigate to="/auth" replace />;
 };
 
 const AuthRoute = ({ children }) => {
   const { userInfo } = useAppStore();
   const isAuthenticated = !!userInfo;
-  return isAuthenticated ? <Navigate to="/chat" /> : children;
+  return isAuthenticated ? <Navigate to="/chat" replace /> : children;
 };
 
 // Registers the service worker and opens the right chat when a notification is clicked
@@ -122,7 +122,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/auth" />} />
+        <Route path="*" element={<Navigate to="/auth" replace />} />
       </Routes>
     </Router>
   );

@@ -63,7 +63,7 @@ const Chat = () => {
   }, [userInfo, navigate]);
 
   return (
-    <div className="flex h-[100dvh] w-full text-white overflow-hidden">
+    <div className="flex h-[100dvh] w-full text-white overflow-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] md:pt-0 md:pb-0">
       {isUploading && (
         <div className="h-[100dvh] w-full fixed top-0 z-10 left-0 bg-black/80 flex items-center justify-center flex-col gap-5">
           <h5 className="text-3xl sm:text-5xl animate-pulse">Uploading File</h5>

@@ -65,7 +65,7 @@ const Profile = () => {
         if (response.status === 200 && response.data) {
           setUserInfo({ ...response.data });
           toast.success("Profile Updated Successfully.");
-          navigate("/chat");
+          navigate("/chat", { replace: true });
         }
       } catch (error) {
         console.log(error);
@@ -115,7 +115,9 @@ const Profile = () => {
 
   const handleNavigate = () => {
     if (userInfo.profileSetup) {
-      navigate("/chat");
+      // Go back in history so the swipe-back gesture doesn't bounce to this page again
+      if (window.history.state?.idx > 0) navigate(-1);
+      else navigate("/chat", { replace: true });
     } else {
       toast.error("Please setup profile.");
     }

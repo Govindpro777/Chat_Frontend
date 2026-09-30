@@ -99,3 +99,18 @@
   --epr-bg-color: #2a2b33 !important;
   --epr-category-label-bg-color: #2a2b33 !important;
 }
+
+/* iOS Safari zooms the page when a focused input has a font size under 16px */
+@media (max-width: 639px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+html,
+body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}

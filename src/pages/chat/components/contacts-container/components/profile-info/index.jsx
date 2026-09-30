@@ -28,7 +28,7 @@ const ProfileInfo = () => {
       );
       if (response.status === 200) {
         localStorage.removeItem("access-token");
-        navigate("/auth");
+        navigate("/auth", { replace: true });
         setUserInfo(undefined);
       }
     } catch (error) {
