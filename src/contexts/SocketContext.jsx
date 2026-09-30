@@ -64,6 +64,11 @@ export const SocketProvider = ({ children }) => {
         addChannel(channel);
       };
 
+      const handleOnlineUsers = (userIds) => {
+        useAppStore.getState().setOnlineUsers(userIds);
+      };
+
+      socket.current.on("online-users", handleOnlineUsers);
       socket.current.on("receiveMessage", handleReceiveMessage);
       socket.current.on("recieve-channel-message", handleReceiveChannelMessage);
       socket.current.on("new-channel-added", addNewChannel);

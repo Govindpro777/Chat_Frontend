@@ -5,7 +5,10 @@ import { HOST } from "@/lib/constants";
 import { getColor } from "@/lib/utils";
 
 const ChatHeader = () => {
-  const { selectedChatData, closeChat, selectedChatType } = useAppStore();
+  const { selectedChatData, closeChat, selectedChatType, onlineUsers } =
+    useAppStore();
+  const isOnline =
+    selectedChatType === "contact" && onlineUsers.includes(selectedChatData._id);
   return (
     <div className="h-16 md:h-[10vh] md:min-h-16 shrink-0 border-b-2 border-[#2f303b] flex items-center justify-between px-4 sm:px-8 lg:px-20">
       <div className="flex gap-5 items-center min-w-0">
@@ -40,12 +43,28 @@ const ChatHeader = () => {
             )}
           </div>
           <div className="truncate">
-            {selectedChatType === "channel" && selectedChatData.name}
-            {selectedChatType === "contact" &&
-            selectedChatData.firstName &&
-            selectedChatData.lastName
-              ? `${selectedChatData.firstName} ${selectedChatData.lastName}`
-              : ""}
+            <div className="truncate">
+              {selectedChatType === "channel" && selectedChatData.name}
+              {selectedChatType === "contact" &&
+              selectedChatData.firstName &&
+              selectedChatData.lastName
+                ? `${selectedChatData.firstName} ${selectedChatData.lastName}`
+                : ""}
+            </div>
+            {selectedChatType === "contact" && (
+              <div
+                className={`text-xs flex items-center gap-1 ${
+                  isOnline ? "text-green-400" : "text-neutral-500"
+                }`}
+              >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    isOnline ? "bg-green-500" : "bg-neutral-500"
+                  }`}
+                />
+                {isOnline ? "Active now" : "Offline"}
+              </div>
+            )}
           </div>
         </div>
       </div>

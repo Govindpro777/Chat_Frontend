@@ -4,6 +4,8 @@ export const createChatSlice = (set, get) => ({
   selectedChatMessages: [],
   directMessagesContacts: [],
   channels: [],
+  onlineUsers: [],
+  setOnlineUsers: (onlineUsers) => set({ onlineUsers }),
   isUploading: false,
   fileUploadProgress: 0,
   isDownloading: false,

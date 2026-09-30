@@ -9,6 +9,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
     setSelectedChatType,
     setSelectedChatData,
     setSelectedChatMessages,
+    onlineUsers,
   } = useAppStore();
 
   const handleClick = (contact) => {
@@ -34,6 +35,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
         >
           <div className="flex gap-5 items-center justify-start text-neutral-300">
             {!isChannel && (
+              <div className="relative">
               <Avatar className="h-10 w-10 ">
                 {contact.image && (
                   <AvatarImage
@@ -53,6 +55,10 @@ const ContactList = ({ contacts, isChannel = false }) => {
                   {contact.firstName.split("").shift()}
                 </AvatarFallback>
               </Avatar>
+              {onlineUsers.includes(contact._id) && (
+                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-[#1b1c24]" />
+              )}
+              </div>
             )}
             {isChannel && (
               <div
