@@ -5,7 +5,6 @@ import {
   notificationsSupported,
   playNotificationSound,
   requestNotificationPermission,
-  showNotification,
 } from "@/lib/notifications";
 
 const Toggle = ({ checked, onChange, disabled }) => (
@@ -15,24 +14,24 @@ const Toggle = ({ checked, onChange, disabled }) => (
     aria-checked={checked}
     disabled={disabled}
     onClick={() => onChange(!checked)}
-    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200 disabled:opacity-40 ${
+    className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200 disabled:opacity-40 ${
       checked ? "bg-[#8417ff]" : "bg-[#3a3b47]"
     }`}
   >
     <span
-      className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200 ${
-        checked ? "translate-x-5" : ""
+      className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-200 ${
+        checked ? "translate-x-4" : ""
       }`}
     />
   </button>
 );
 
 const Row = ({ title, description, children }) => (
-  <div className="flex items-center justify-between gap-4 py-3">
+  <div className="flex items-center justify-between gap-4 py-2.5">
     <div className="min-w-0">
-      <p className="text-white/90">{title}</p>
+      <p className="text-sm sm:text-[15px] text-white/90">{title}</p>
       {description && (
-        <p className="text-xs text-white/40 mt-0.5">{description}</p>
+        <p className="text-[11px] sm:text-xs text-white/40 mt-0.5">{description}</p>
       )}
     </div>
     {children}
@@ -75,27 +74,9 @@ const NotificationSettings = () => {
     if (value) playNotificationSound();
   };
 
-  const sendTest = async () => {
-    const result = await requestNotificationPermission();
-    setPermission(result);
-    if (result !== "granted") {
-      toast.error("Please allow notifications in your browser first.");
-      return;
-    }
-    if (notificationSound) playNotificationSound();
-    showNotification({
-      title: "Notifications are working",
-      body: "You will be notified when new messages arrive.",
-      tag: "test",
-      url: "/chat",
-    });
-  };
-
-  const active = notificationsEnabled && permission === "granted";
-
   return (
-    <div className="w-full rounded-xl bg-[#2c2e3b]/60 border border-white/5 px-4 sm:px-5 py-2 text-white">
-      <h3 className="pt-3 pb-1 text-sm uppercase tracking-widest text-white/50">
+    <div className="w-full rounded-xl bg-[#2c2e3b]/60 border border-white/5 px-3.5 sm:px-5 py-1 text-white">
+      <h3 className="pt-2.5 pb-1 text-xs uppercase tracking-widest text-white/50">
         Notifications
       </h3>
       {!supported && (
@@ -151,21 +132,11 @@ const NotificationSettings = () => {
             type="button"
             disabled={!mutedChats.length}
             onClick={unmuteAllChats}
-            className="text-sm text-[#b47cff] disabled:text-white/30"
+            className="text-xs sm:text-sm text-[#b47cff] disabled:text-white/30 shrink-0"
           >
             Unmute all
           </button>
         </Row>
-      </div>
-      <div className="py-3">
-        <button
-          type="button"
-          onClick={sendTest}
-          disabled={!supported || !active}
-          className="w-full rounded-lg border border-white/10 py-2 text-sm hover:bg-white/5 transition-colors disabled:opacity-40"
-        >
-          Send test notification
-        </button>
       </div>
     </div>
   );

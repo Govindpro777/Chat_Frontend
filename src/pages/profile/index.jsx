@@ -91,6 +91,7 @@ const Profile = () => {
       };
       reader.readAsDataURL(file);
     }
+    event.target.value = "";
   };
 
   const handleDeleteImage = async () => {
@@ -121,21 +122,25 @@ const Profile = () => {
   };
 
   return (
-    <div className="bg-[#1b1c24] min-h-[100dvh] py-6 flex items-center justify-center flex-col gap-10 ">
-      <div className=" w-[90vw] max-w-3xl md:w-max flex flex-col gap-8 sm:gap-10">
-        <div className="">
+    <div className="bg-[#1b1c24] min-h-[100dvh] py-4 sm:py-8 px-4 flex items-start sm:items-center justify-center">
+      <div className="w-full max-w-2xl flex flex-col gap-5 sm:gap-6">
+        <div className="flex items-center gap-3">
           <IoArrowBack
-            className="text-3xl sm:text-4xl lg:text-6xl text-white text-opacity-90 cursor-pointer"
+            className="text-2xl sm:text-3xl text-white text-opacity-90 cursor-pointer"
             onClick={handleNavigate}
           />
+          <h1 className="text-lg sm:text-xl font-semibold text-white">
+            Profile
+          </h1>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 sm:gap-8 items-center justify-items-center sm:justify-items-stretch">
+          <div className="flex flex-col items-center gap-4">
           <div
-            className="h-32 w-32 md:w-48 md:h-48 relative flex items-center justify-center"
+            className="h-24 w-24 sm:h-32 sm:w-32 relative flex items-center justify-center"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
-            <Avatar className="h-32 w-32 md:w-48 md:h-48  rounded-full overflow-hidden">
+            <Avatar className="h-24 w-24 sm:h-32 sm:w-32 rounded-full overflow-hidden">
               {image ? (
                 <AvatarImage
                   src={image}
@@ -144,7 +149,7 @@ const Profile = () => {
                 />
               ) : (
                 <div
-                  className={`uppercase h-32 w-32 md:w-48 md:h-48  text-5xl bg-[#712c4a57] text-[#ff006e] border-[1px] border-[#ff006faa] flex items-center justify-center rounded-full`}
+                  className={`uppercase h-24 w-24 sm:h-32 sm:w-32 text-4xl bg-[#712c4a57] text-[#ff006e] border-[1px] border-[#ff006faa] flex items-center justify-center rounded-full`}
                 >
                   {firstName
                     ? firstName.split("").shift()
@@ -173,12 +178,32 @@ const Profile = () => {
               name="profile-image"
             />
           </div>
-          <div className="flex w-full sm:min-w-64 flex-col gap-5 text-white items-center justify-center">
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              className="h-9 px-4 text-sm bg-purple-700 hover:bg-purple-900 transition-all duration-300"
+              onClick={handleFileInputClick}
+            >
+              {image ? "Change photo" : "Upload photo"}
+            </Button>
+            {image && (
+              <Button
+                type="button"
+                variant="outline"
+                className="h-9 px-4 text-sm bg-transparent text-white border-white/20 hover:bg-white/10 hover:text-white"
+                onClick={handleDeleteImage}
+              >
+                Remove
+              </Button>
+            )}
+          </div>
+          </div>
+          <div className="flex w-full flex-col gap-3 sm:gap-4 text-white items-center justify-center">
             <div className="w-full">
               <Input
                 placeholder="Email"
                 type="email"
-                className="rounded-lg  p-6 bg-[#2c2e3b] border-none"
+                className="rounded-lg h-11 px-4 bg-[#2c2e3b] border-none"
                 disabled
                 value={userInfo.email}
               />
@@ -187,7 +212,7 @@ const Profile = () => {
               <Input
                 placeholder="First Name"
                 type="text"
-                className="rounded-lg p-6 bg-[#2c2e3b] border-none"
+                className="rounded-lg h-11 px-4 bg-[#2c2e3b] border-none"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
@@ -196,15 +221,15 @@ const Profile = () => {
               <Input
                 placeholder="Last Name"
                 type="text"
-                className="rounded-lg p-6 bg-[#2c2e3b] border-none"
+                className="rounded-lg h-11 px-4 bg-[#2c2e3b] border-none"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
               />
             </div>
-            <div className="w-full flex flex-wrap gap-4 sm:gap-5">
+            <div className="w-full flex flex-wrap gap-3 sm:gap-4">
               {colors.map((color, index) => (
                 <div
-                  className={`${color} h-8 w-8 rounded-full cursor-pointer transition-all duration-100 ${
+                  className={`${color} h-7 w-7 rounded-full cursor-pointer transition-all duration-100 ${
                     selectedColor === index
                       ? " outline outline-white outlin4"
                       : ""
@@ -219,7 +244,7 @@ const Profile = () => {
         <NotificationSettings />
         <div className="w-full">
           <Button
-            className="h-16 w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300"
+            className="h-11 sm:h-12 w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300"
             onClick={saveChanges}
           >
             Save Changes
