@@ -26,6 +26,7 @@ const MessageContainer = () => {
     userInfo,
     setDownloadProgress,
     setIsDownloading,
+    typingUsers,
   } = useAppStore();
   const messageEndRef = useRef(null);
   const socket = useSocket();
@@ -84,7 +85,7 @@ const MessageContainer = () => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [selectedChatMessages]);
+  }, [selectedChatMessages, typingUsers]);
 
   const checkIfImage = (filePath) => {
     const imageRegex =
@@ -125,7 +126,7 @@ const MessageContainer = () => {
       return (
         <div key={index} className="">
           {showDate && (
-            <div className="text-center text-[11px] uppercase tracking-wider text-white/40 my-4"><span className="bg-[#2a2b33]/70 rounded-full px-3 py-1">
+            <div className="text-center text-[10px] sm:text-[11px] uppercase tracking-wider text-white/40 my-3 sm:my-4"><span className="bg-[#2a2b33]/70 rounded-full px-3 py-1">
               {moment(message.timestamp).format("LL")}
             </span></div>
           )}
@@ -149,7 +150,7 @@ const MessageContainer = () => {
               message.sender !== selectedChatData._id
                 ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
                 : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
-            } border inline-block px-3.5 py-2 text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left`}
+            } border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left`}
           >
             {message.content}
           </div>
@@ -160,7 +161,7 @@ const MessageContainer = () => {
               message.sender !== selectedChatData._id
                 ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
                 : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
-            } border inline-block px-3.5 py-2 text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left`}
+            } border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left`}
           >
             {checkIfImage(message.fileUrl) ? (
               <div
@@ -195,7 +196,7 @@ const MessageContainer = () => {
           </div>
         )}
 
-        <div className="text-[11px] text-white/40 mt-0.5 px-1">
+        <div className="text-[10px] sm:text-[11px] text-white/40 mt-0.5 px-1">
           {moment(message.timestamp).format("LT")}
           {isLastSent && message.seen && (
             <span className="ml-1.5 text-[#b47cff]">· Seen</span>
@@ -218,7 +219,7 @@ const MessageContainer = () => {
               message.sender._id === userInfo.id
                 ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
                 : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
-            } border inline-block px-3.5 py-2 text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
+            } border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
           >
             {message.content}
           </div>
@@ -229,7 +230,7 @@ const MessageContainer = () => {
               message.sender._id === userInfo.id
                 ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
                 : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
-            } border inline-block px-3.5 py-2 text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
+            } border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
           >
             {checkIfImage(message.fileUrl) ? (
               <div
@@ -281,14 +282,14 @@ const MessageContainer = () => {
                 {message.sender.firstName.split("").shift()}
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm text-white/60">{`${message.sender.firstName} ${message.sender.lastName}`}</span>
+            <span className="text-xs sm:text-sm text-white/60">{`${message.sender.firstName} ${message.sender.lastName}`}</span>
 
-            <div className="text-xs text-white/60">
+            <div className="text-[10px] sm:text-xs text-white/60">
               {moment(message.timestamp).format("LT")}
             </div>
           </div>
         ) : (
-          <div className="text-xs text-white/60 mt-1">
+          <div className="text-[10px] sm:text-xs text-white/60 mt-1">
             {moment(message.timestamp).format("LT")}
           </div>
         )}
@@ -299,6 +300,17 @@ const MessageContainer = () => {
   return (
     <div className="flex-1 overflow-y-auto scrollbar-hidden p-3 sm:p-4 sm:px-8 w-full min-w-0">
       {renderMessages()}
+      {selectedChatType === "contact" && typingUsers[selectedChatData._id] && (
+        <div className="mt-1 inline-flex items-center gap-1 rounded-2xl rounded-bl-md border border-white/10 bg-[#2a2b33] px-3 py-2.5">
+          {[0, 150, 300].map((delay) => (
+            <span
+              key={delay}
+              className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/60"
+              style={{ animationDelay: `${delay}ms` }}
+            />
+          ))}
+        </div>
+      )}
       <div ref={messageEndRef} />
       {showImage && (
         <div className="fixed z-[1000] top-0 left-0 h-[100dvh] w-full flex items-center justify-center backdrop-blur-lg flex-col">

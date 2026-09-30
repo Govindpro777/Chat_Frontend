@@ -123,6 +123,18 @@ export const SocketProvider = ({ children }) => {
         }
       };
 
+      // Typing state expires on its own in case the "stopped typing" event is lost
+      const typingTimers = {};
+      const handleTyping = ({ from, isTyping }) => {
+        const { setTyping } = useAppStore.getState();
+        clearTimeout(typingTimers[from]);
+        setTyping(from, isTyping);
+        if (isTyping) {
+          typingTimers[from] = setTimeout(() => setTyping(from, false), 5000);
+        }
+      };
+
+      socket.current.on("typing", handleTyping);
       socket.current.on("online-users", handleOnlineUsers);
       socket.current.on("messages-seen", handleMessagesSeen);
       socket.current.on("receiveMessage", handleReceiveMessage);
@@ -130,6 +142,7 @@ export const SocketProvider = ({ children }) => {
       socket.current.on("new-channel-added", addNewChannel);
 
       return () => {
+        Object.values(typingTimers).forEach(clearTimeout);
         socket.current.disconnect();
       };
     }

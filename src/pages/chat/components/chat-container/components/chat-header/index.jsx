@@ -11,6 +11,7 @@ const ChatHeader = () => {
     selectedChatData,
     selectedChatType,
     onlineUsers,
+    typingUsers,
     mutedChats,
     toggleChatMute,
   } = useAppStore();
@@ -23,12 +24,12 @@ const ChatHeader = () => {
   const isOnline =
     selectedChatType === "contact" && onlineUsers.includes(selectedChatData._id);
   return (
-    <div className="h-16 md:h-[10vh] md:min-h-16 shrink-0 border-b-2 border-[#2f303b] flex items-center justify-between px-4 sm:px-8 lg:px-20">
-      <div className="flex gap-5 items-center min-w-0">
+    <div className="h-12 sm:h-16 md:h-[10vh] md:min-h-16 shrink-0 border-b sm:border-b-2 border-[#2f303b] flex items-center justify-between px-3 sm:px-8 lg:px-20">
+      <div className="flex gap-3 sm:gap-5 items-center min-w-0">
         <div className="flex gap-3 items-center justify-center min-w-0">
-          <div className="w-12 h-12 shrink-0 relative flex items-center justify-center">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 shrink-0 relative flex items-center justify-center">
             {selectedChatType === "contact" ? (
-              <Avatar className="w-12 h-12 rounded-full overflow-hidden">
+              <Avatar className="w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden">
                 {selectedChatData.image ? (
                   <AvatarImage
                     src={`${HOST}/${selectedChatData.image}`}
@@ -37,7 +38,7 @@ const ChatHeader = () => {
                   />
                 ) : (
                   <div
-                    className={`uppercase w-12 h-12 text-lg   border-[1px] ${getColor(
+                    className={`uppercase w-9 h-9 sm:w-12 sm:h-12 text-sm sm:text-lg border-[1px] ${getColor(
                       selectedChatData.color
                     )} flex items-center justify-center rounded-full`}
                   >
@@ -49,14 +50,14 @@ const ChatHeader = () => {
               </Avatar>
             ) : (
               <div
-                className={` bg-[#ffffff22] py-3 px-5 flex items-center justify-center rounded-full`}
+                className={` bg-[#ffffff22] py-1.5 px-3.5 sm:py-3 sm:px-5 flex items-center justify-center rounded-full`}
               >
                 #
               </div>
             )}
           </div>
           <div className="truncate">
-            <div className="truncate">
+            <div className="truncate text-sm sm:text-base">
               {selectedChatType === "channel" && selectedChatData.name}
               {selectedChatType === "contact" &&
               selectedChatData.firstName &&
@@ -66,7 +67,7 @@ const ChatHeader = () => {
             </div>
             {selectedChatType === "contact" && (
               <div
-                className={`text-xs flex items-center gap-1 ${
+                className={`text-[11px] sm:text-xs flex items-center gap-1 ${
                   isOnline ? "text-green-400" : "text-neutral-500"
                 }`}
               >
@@ -75,13 +76,17 @@ const ChatHeader = () => {
                     isOnline ? "bg-green-500" : "bg-neutral-500"
                   }`}
                 />
-                {isOnline ? "Active now" : "Offline"}
+                {typingUsers[selectedChatData._id]
+                  ? "typing..."
+                  : isOnline
+                  ? "Active now"
+                  : "Offline"}
               </div>
             )}
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-center gap-4 sm:gap-5">
+      <div className="flex items-center justify-center gap-3 sm:gap-5">
         <button
           title={isMuted ? "Unmute notifications" : "Mute notifications"}
           className={`focus:outline-none transition-all duration-300 ${
@@ -90,16 +95,16 @@ const ChatHeader = () => {
           onClick={() => toggleChatMute(selectedChatData._id)}
         >
           {isMuted ? (
-            <IoNotificationsOff className="text-2xl" />
+            <IoNotificationsOff className="text-xl sm:text-2xl" />
           ) : (
-            <IoNotifications className="text-2xl" />
+            <IoNotifications className="text-xl sm:text-2xl" />
           )}
         </button>
         <button
           className="text-neutral-300 focus:border-none focus:outline-none focus:text-white transition-all duration-300"
           onClick={closeChat}
         >
-          <RiCloseFill className="text-3xl" />
+          <RiCloseFill className="text-2xl sm:text-3xl" />
         </button>
       </div>
     </div>

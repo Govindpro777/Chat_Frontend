@@ -4,6 +4,13 @@ export const createChatSlice = (set, get) => ({
   selectedChatMessages: [],
   directMessagesContacts: [],
   channels: [],
+  typingUsers: {},
+  setTyping: (userId, isTyping) => {
+    const typingUsers = { ...get().typingUsers };
+    if (isTyping) typingUsers[userId] = true;
+    else delete typingUsers[userId];
+    set({ typingUsers });
+  },
   onlineUsers: [],
   setOnlineUsers: (onlineUsers) => set({ onlineUsers }),
   isUploading: false,
