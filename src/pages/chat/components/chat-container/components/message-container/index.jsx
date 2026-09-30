@@ -8,6 +8,7 @@ import {
 } from "@/lib/constants";
 import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
+import { useSocket } from "@/contexts/SocketContext";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { IoMdArrowRoundDown } from "react-icons/io";
@@ -27,6 +28,28 @@ const MessageContainer = () => {
     setIsDownloading,
   } = useAppStore();
   const messageEndRef = useRef(null);
+  const socket = useSocket();
+
+  // Tell the sender their messages were seen while this chat is open and visible
+  useEffect(() => {
+    if (selectedChatType !== "contact" || !socket) return;
+    const markSeen = () => {
+      if (document.hidden) return;
+      const hasUnseen = selectedChatMessages.some(
+        (m) => (m.sender?._id || m.sender) === selectedChatData._id && !m.seen
+      );
+      if (hasUnseen) {
+        socket.emit("mark-seen", { chatUserId: selectedChatData._id });
+      }
+    };
+    markSeen();
+    document.addEventListener("visibilitychange", markSeen);
+    return () => document.removeEventListener("visibilitychange", markSeen);
+  }, [selectedChatMessages, selectedChatData, selectedChatType, socket]);
+
+  const lastSentIndex = selectedChatMessages.findLastIndex(
+    (m) => (m.sender?._id || m.sender) === userInfo.id
+  );
 
   useEffect(() => {
     const getMessages = async () => {
@@ -106,14 +129,14 @@ const MessageContainer = () => {
               {moment(message.timestamp).format("LL")}
             </span></div>
           )}
-          {selectedChatType === "contact" && renderPersonalMessages(message)}
+          {selectedChatType === "contact" && renderPersonalMessages(message, index === lastSentIndex)}
           {selectedChatType === "channel" && renderChannelMessages(message)}
         </div>
       );
     });
   };
 
-  const renderPersonalMessages = (message) => {
+  const renderPersonalMessages = (message, isLastSent) => {
     return (
       <div
         className={`message  ${
@@ -174,6 +197,9 @@ const MessageContainer = () => {
 
         <div className="text-[11px] text-white/40 mt-0.5 px-1">
           {moment(message.timestamp).format("LT")}
+          {isLastSent && message.seen && (
+            <span className="ml-1.5 text-[#b47cff]">· Seen</span>
+          )}
         </div>
       </div>
     );

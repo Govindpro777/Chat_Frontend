@@ -115,7 +115,16 @@ export const SocketProvider = ({ children }) => {
         useAppStore.getState().setOnlineUsers(userIds);
       };
 
+      const handleMessagesSeen = ({ by, seenAt }) => {
+        const { selectedChatData, selectedChatType, markMessagesSeen } =
+          useAppStore.getState();
+        if (selectedChatType === "contact" && selectedChatData?._id === by) {
+          markMessagesSeen(by, seenAt);
+        }
+      };
+
       socket.current.on("online-users", handleOnlineUsers);
+      socket.current.on("messages-seen", handleMessagesSeen);
       socket.current.on("receiveMessage", handleReceiveMessage);
       socket.current.on("recieve-channel-message", handleReceiveChannelMessage);
       socket.current.on("new-channel-added", addNewChannel);
