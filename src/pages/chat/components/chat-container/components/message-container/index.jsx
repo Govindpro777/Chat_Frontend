@@ -102,9 +102,9 @@ const MessageContainer = () => {
       return (
         <div key={index} className="">
           {showDate && (
-            <div className="text-center text-gray-500 my-2">
+            <div className="text-center text-[11px] uppercase tracking-wider text-white/40 my-4"><span className="bg-[#2a2b33]/70 rounded-full px-3 py-1">
               {moment(message.timestamp).format("LL")}
-            </div>
+            </span></div>
           )}
           {selectedChatType === "contact" && renderPersonalMessages(message)}
           {selectedChatType === "channel" && renderChannelMessages(message)}
@@ -124,9 +124,9 @@ const MessageContainer = () => {
           <div
             className={`${
               message.sender !== selectedChatData._id
-                ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-                : "bg-[#2a2b33]/50 text-white/80 border-[#ffffff]/20"
-            } border inline-block p-3 sm:p-4 rounded my-1 max-w-[85%] sm:max-w-[70%] lg:max-w-[50%] break-words`}
+                ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
+                : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
+            } border inline-block px-3.5 py-2 text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left`}
           >
             {message.content}
           </div>
@@ -135,9 +135,9 @@ const MessageContainer = () => {
           <div
             className={`${
               message.sender !== selectedChatData._id
-                ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-                : "bg-[#2a2b33]/50 text-white/80 border-[#ffffff]/20"
-            } border inline-block p-3 sm:p-4 rounded my-1 max-w-[85%] sm:max-w-[70%] lg:max-w-[85%] sm:max-w-[70%] lg:max-w-[50%] break-words`}
+                ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
+                : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
+            } border inline-block px-3.5 py-2 text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left`}
           >
             {checkIfImage(message.fileUrl) ? (
               <div
@@ -172,7 +172,7 @@ const MessageContainer = () => {
           </div>
         )}
 
-        <div className="text-xs text-gray-600">
+        <div className="text-[11px] text-white/40 mt-0.5 px-1">
           {moment(message.timestamp).format("LT")}
         </div>
       </div>
@@ -190,9 +190,9 @@ const MessageContainer = () => {
           <div
             className={`${
               message.sender._id === userInfo.id
-                ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-                : "bg-[#2a2b33]/50 text-white/80 border-[#ffffff]/20"
-            } border inline-block p-3 sm:p-4 rounded my-1 max-w-[85%] sm:max-w-[70%] lg:max-w-[50%] break-words ml-9`}
+                ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
+                : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
+            } border inline-block px-3.5 py-2 text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
           >
             {message.content}
           </div>
@@ -201,9 +201,9 @@ const MessageContainer = () => {
           <div
             className={`${
               message.sender._id === userInfo.id
-                ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-                : "bg-[#2a2b33]/50 text-white/80 border-[#ffffff]/20"
-            } border inline-block p-3 sm:p-4 rounded my-1 max-w-[85%] sm:max-w-[70%] lg:max-w-[50%] break-words ml-9`}
+                ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
+                : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
+            } border inline-block px-3.5 py-2 text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
           >
             {checkIfImage(message.fileUrl) ? (
               <div

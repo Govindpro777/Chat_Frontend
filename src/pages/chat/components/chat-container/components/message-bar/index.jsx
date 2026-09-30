@@ -116,11 +116,11 @@ const MessageBar = () => {
   };
 
   return (
-    <div className="shrink-0 min-h-16 bg-[#1c1d25] flex justify-center items-center px-3 sm:px-8 gap-3 sm:gap-6 py-2 mb-2 sm:mb-5">
-      <div className="flex-1 min-w-0 flex bg-[#2a2b33] rounded-md items-center gap-3 sm:gap-5 pr-3 sm:pr-5">
+    <div className="shrink-0 bg-[#1c1d25] flex justify-center items-center px-3 sm:px-8 gap-2 sm:gap-3 py-2 mb-1 sm:mb-3">
+      <div className="flex-1 min-w-0 flex bg-[#2a2b33] border border-white/5 rounded-full items-center gap-2 sm:gap-3 pr-3 sm:pr-4 focus-within:border-[#8417ff]/60 transition-colors">
         <input
           type="text"
-          className="flex-1 min-w-0 p-3 sm:p-5 bg-transparent rounded-md focus:border-none focus:outline-none"
+          className="flex-1 min-w-0 px-4 py-2.5 text-[15px] bg-transparent rounded-full focus:border-none focus:outline-none placeholder:text-white/30"
           placeholder="Enter message"
           value={message}
           onChange={handleMessageChange}
@@ -129,7 +129,7 @@ const MessageBar = () => {
           className="text-neutral-300 focus:border-none focus:outline-none focus:text-white transition-all duration-300"
           onClick={handleAttachmentClick} // Trigger the file input click
         >
-          <GrAttachment className="text-2xl" />
+          <GrAttachment className="text-xl" />
         </button>
         <input
           type="file"
@@ -142,7 +142,7 @@ const MessageBar = () => {
             className="text-neutral-300 focus:border-none focus:outline-none focus:text-white transition-all duration-300"
             onClick={() => setEmojiPickerOpen(true)}
           >
-            <RiEmojiStickerLine className="text-2xl " />
+            <RiEmojiStickerLine className="text-xl" />
           </button>
           <div className="fixed left-3 right-3 bottom-20 sm:absolute sm:left-auto sm:right-0 sm:bottom-16 sm:w-[350px]" ref={emojiRef}>
             <EmojiPicker
@@ -156,10 +156,10 @@ const MessageBar = () => {
         </div>
       </div>
       <button
-        className="bg-[#8417ff] rounded-md flex items-center justify-center p-3 sm:p-5 gap-2 shrink-0 focus:border-none focus:outline-none hover:bg-[#741bda] focus:bg-[#741bda] transition-all duration-300 "
+        className="bg-[#8417ff] rounded-full h-11 w-11 flex items-center justify-center shrink-0 focus:border-none focus:outline-none hover:bg-[#741bda] focus:bg-[#741bda] transition-all duration-300 "
         onClick={handleSendMessage}
       >
-        <IoSend className="text-2xl" />
+        <IoSend className="text-xl" />
       </button>
     </div>
   );

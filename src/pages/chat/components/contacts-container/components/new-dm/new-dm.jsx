@@ -1,3 +1,4 @@
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,8 @@ import Lottie from "react-lottie";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const NewDM = () => {
+  const navigate = useNavigate();
+  const { chatId } = useParams();
   const [searchedContacts, setsearchedContacts] = useState([]);
   const [openNewContactModal, setOpenNewContactModal] = useState(false);
   const { setSelectedChatType, setSelectedChatData } = useAppStore();
@@ -49,6 +52,7 @@ const NewDM = () => {
     setSelectedChatType("contact");
     setSelectedChatData(contact);
     setsearchedContacts([]);
+    navigate(`/chat/contact/${contact._id}`, { replace: !!chatId });
   };
 
   return (

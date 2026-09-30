@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import ChatContainer from "./components/chat-container";
 import ContactsContainer from "./components/contacts-container";
 import { useAppStore } from "@/store";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import EmptyChatContainer from "./components/empty-chat-container";
 
@@ -16,8 +16,45 @@ const Chat = () => {
     fileUploadProgress,
     isDownloading,
     downloadProgress,
+    selectedChatData,
+    directMessagesContacts,
+    channels,
+    setSelectedChatType,
+    setSelectedChatData,
+    setSelectedChatMessages,
+    closeChat,
   } = useAppStore();
   const navigate = useNavigate();
+  const { chatType, chatId } = useParams();
+
+  // Keep the open chat in sync with the URL so browser/mobile back works
+  useEffect(() => {
+    if (!chatType || !chatId) {
+      if (selectedChatType !== undefined) closeChat();
+      return;
+    }
+    if (chatType !== "contact" && chatType !== "channel") {
+      navigate("/chat", { replace: true });
+      return;
+    }
+    if (selectedChatData?._id === chatId && selectedChatType === chatType) {
+      return;
+    }
+    const list = chatType === "channel" ? channels : directMessagesContacts;
+    const found = list.find((item) => item._id === chatId);
+    if (found) {
+      setSelectedChatMessages([]);
+      setSelectedChatType(chatType);
+      setSelectedChatData(found);
+    }
+  }, [
+    chatType,
+    chatId,
+    selectedChatData,
+    selectedChatType,
+    directMessagesContacts,
+    channels,
+  ]);
   useEffect(() => {
     if (!userInfo.profileSetup) {
       toast("Please setup profile to continue.");

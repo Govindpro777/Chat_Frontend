@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { RiCloseFill } from "react-icons/ri";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppStore } from "@/store";
@@ -5,8 +6,12 @@ import { HOST } from "@/lib/constants";
 import { getColor } from "@/lib/utils";
 
 const ChatHeader = () => {
-  const { selectedChatData, closeChat, selectedChatType, onlineUsers } =
-    useAppStore();
+  const { selectedChatData, selectedChatType, onlineUsers } = useAppStore();
+  const navigate = useNavigate();
+  const closeChat = () => {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate("/chat", { replace: true });
+  };
   const isOnline =
     selectedChatType === "contact" && onlineUsers.includes(selectedChatData._id);
   return (

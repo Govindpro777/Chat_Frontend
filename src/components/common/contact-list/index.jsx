@@ -1,6 +1,7 @@
 import { HOST } from "@/lib/constants";
 import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
+import { useNavigate, useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 const ContactList = ({ contacts, isChannel = false }) => {
@@ -11,14 +12,17 @@ const ContactList = ({ contacts, isChannel = false }) => {
     setSelectedChatMessages,
     onlineUsers,
   } = useAppStore();
+  const navigate = useNavigate();
+  const { chatId } = useParams();
 
   const handleClick = (contact) => {
-    if (isChannel) setSelectedChatType("channel");
-    else setSelectedChatType("contact");
+    const type = isChannel ? "channel" : "contact";
+    setSelectedChatType(type);
     setSelectedChatData(contact);
     if (selectedChatData && selectedChatData._id !== contact._id) {
       setSelectedChatMessages([]);
     }
+    navigate(`/chat/${type}/${contact._id}`, { replace: !!chatId });
   };
 
   return (
