@@ -24,6 +24,7 @@ const ProfileInfo = () => {
         { withCredentials: true }
       );
       if (response.status === 200) {
+        localStorage.removeItem("access-token");
         navigate("/auth");
         setUserInfo(undefined);
       }
