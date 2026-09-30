@@ -138,6 +138,15 @@ export const SocketProvider = ({ children }) => {
         useAppStore.getState().removeMessage(messageId);
       };
 
+      const handleChannelUpdated = (channel) => {
+        useAppStore.getState().updateChannelInList(channel);
+      };
+      const handleChannelDeleted = ({ channelId }) => {
+        useAppStore.getState().removeChannel(channelId);
+      };
+
+      socket.current.on("channel-updated", handleChannelUpdated);
+      socket.current.on("channel-deleted", handleChannelDeleted);
       socket.current.on("message-deleted", handleMessageDeleted);
       socket.current.on("typing", handleTyping);
       socket.current.on("online-users", handleOnlineUsers);

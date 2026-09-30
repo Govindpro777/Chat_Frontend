@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useAppStore } from "@/store";
 import apiClient from "@/lib/api-client";
 import { removePushSubscription } from "@/lib/push";
+import { Spinner } from "@/components/common/loader";
 import { HOST, LOGOUT_ROUTE } from "@/lib/constants";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -17,7 +19,10 @@ import { getColor } from "@/lib/utils";
 const ProfileInfo = () => {
   const { userInfo, setUserInfo } = useAppStore();
   const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
   const logout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
     try {
       // Must run while the token is still valid
       await removePushSubscription();
@@ -33,6 +38,8 @@ const ProfileInfo = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoggingOut(false);
     }
   };
 
@@ -83,10 +90,14 @@ const ProfileInfo = () => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <IoPowerSharp
-                className="text-red-500 text-xl font-medium"
-                onClick={logout}
-              />
+              {loggingOut ? (
+                <Spinner className="h-5 w-5" />
+              ) : (
+                <IoPowerSharp
+                  className="text-red-500 text-xl font-medium"
+                  onClick={logout}
+                />
+              )}
             </TooltipTrigger>
             <TooltipContent className="bg-[#1c1b1e] border-none mb-2 p-3">
               <p className="text-white">Logout</p>

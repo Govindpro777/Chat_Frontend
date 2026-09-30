@@ -1,3 +1,4 @@
+import { Spinner } from "@/components/common/loader";
 import { useAppStore } from "@/store";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ const Profile = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [selectedColor, setSelectedColor] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
 
   useEffect(() => {
     if (userInfo.profileSetup) {
@@ -52,6 +55,7 @@ const Profile = () => {
 
   const saveChanges = async () => {
     if (validateProfile()) {
+      setSaving(true);
       try {
         const response = await apiClient.post(
           UPDATE_PROFLE_ROUTE,
@@ -69,6 +73,9 @@ const Profile = () => {
         }
       } catch (error) {
         console.log(error);
+        toast.error("Could not save your profile.");
+      } finally {
+        setSaving(false);
       }
     }
   };
@@ -78,23 +85,32 @@ const Profile = () => {
     if (file) {
       const formData = new FormData();
       formData.append("profile-image", file);
-      const response = await apiClient.post(ADD_PROFILE_IMAGE_ROUTE, formData, {
-        withCredentials: true,
-      });
-      if (response.status === 200 && response.data.image) {
-        setUserInfo({ ...userInfo, image: response.data.image });
-        toast.success("Image updated successfully.");
+      setImageBusy(true);
+      try {
+        const response = await apiClient.post(ADD_PROFILE_IMAGE_ROUTE, formData, {
+          withCredentials: true,
+        });
+        if (response.status === 200 && response.data.image) {
+          setUserInfo({ ...userInfo, image: response.data.image });
+          toast.success("Image updated successfully.");
+        }
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.log(error);
+        toast.error("Could not upload the image.");
+      } finally {
+        setImageBusy(false);
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-      };
-      reader.readAsDataURL(file);
     }
     event.target.value = "";
   };
 
   const handleDeleteImage = async () => {
+    setImageBusy(true);
     try {
       const response = await apiClient.delete(REMOVE_PROFILE_IMAGE_ROUTE, {
         withCredentials: true,
@@ -106,6 +122,9 @@ const Profile = () => {
       }
     } catch (error) {
       console.log({ error });
+      toast.error("Could not remove the image.");
+    } finally {
+      setImageBusy(false);
     }
   };
 
@@ -159,7 +178,12 @@ const Profile = () => {
                 </div>
               )}
             </Avatar>
-            {hovered && (
+            {imageBusy && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60">
+                <Spinner className="h-8 w-8" />
+              </div>
+            )}
+            {hovered && !imageBusy && (
               <div
                 className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer"
                 onClick={image ? handleDeleteImage : handleFileInputClick}
@@ -185,6 +209,7 @@ const Profile = () => {
               type="button"
               className="h-9 px-4 text-sm bg-purple-700 hover:bg-purple-900 transition-all duration-300"
               onClick={handleFileInputClick}
+              disabled={imageBusy}
             >
               {image ? "Change photo" : "Upload photo"}
             </Button>
@@ -194,6 +219,7 @@ const Profile = () => {
                 variant="outline"
                 className="h-9 px-4 text-sm bg-transparent text-white border-white/20 hover:bg-white/10 hover:text-white"
                 onClick={handleDeleteImage}
+                disabled={imageBusy}
               >
                 Remove
               </Button>
@@ -248,8 +274,10 @@ const Profile = () => {
           <Button
             className="h-11 sm:h-12 w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300"
             onClick={saveChanges}
+            disabled={saving}
           >
-            Save Changes
+            {saving && <Spinner className="mr-2 h-4 w-4" />}
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>

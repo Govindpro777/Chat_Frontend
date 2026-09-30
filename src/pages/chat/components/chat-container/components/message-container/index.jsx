@@ -16,10 +16,13 @@ import { IoMdArrowRoundDown } from "react-icons/io";
 import { IoCloseSharp } from "react-icons/io5";
 import { MdFolderZip, MdDeleteOutline } from "react-icons/md";
 import { toast } from "sonner";
+import { Spinner } from "@/components/common/loader";
 
 const MessageContainer = () => {
   const [showImage, setShowImage] = useState(false);
   const [imageURL, setImageURL] = useState(null);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const {
     selectedChatData,
     setSelectedChatMessages,
@@ -78,9 +81,20 @@ const MessageContainer = () => {
         setSelectedChatMessages(response.data.messages);
       }
     };
+    const load = async (fetcher) => {
+      setLoadingMessages(true);
+      try {
+        await fetcher();
+      } catch (error) {
+        console.log(error);
+        toast.error("Could not load messages.");
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
     if (selectedChatData._id) {
-      if (selectedChatType === "contact") getMessages();
-      else if (selectedChatType === "channel") getChannelMessages();
+      if (selectedChatType === "contact") load(getMessages);
+      else if (selectedChatType === "channel") load(getChannelMessages);
     }
   }, [selectedChatData, selectedChatType, setSelectedChatMessages]);
 
@@ -91,6 +105,7 @@ const MessageContainer = () => {
   }, [selectedChatMessages, typingUsers]);
 
   const deleteAttachment = async (message) => {
+    setDeletingId(message._id);
     try {
       await apiClient.delete(`${DELETE_FILE_MESSAGE}/${message._id}`, {
         withCredentials: true,
@@ -99,6 +114,8 @@ const MessageContainer = () => {
     } catch (error) {
       console.log(error);
       toast.error("Could not delete the attachment.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -107,9 +124,14 @@ const MessageContainer = () => {
       type="button"
       title="Delete attachment"
       onClick={() => deleteAttachment(message)}
+      disabled={deletingId === message._id}
       className="absolute -top-2 -right-2 z-[1] flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white/80 shadow hover:bg-red-600 hover:text-white transition-colors"
     >
-      <MdDeleteOutline className="text-base" />
+      {deletingId === message._id ? (
+        <Spinner className="h-3.5 w-3.5" />
+      ) : (
+        <MdDeleteOutline className="text-base" />
+      )}
     </button>
   );
 
@@ -234,99 +256,106 @@ const MessageContainer = () => {
   };
 
   const renderChannelMessages = (message) => {
+    const isOwn = message.sender._id === userInfo.id;
+    const senderName =
+      `${message.sender.firstName || message.sender.email} ${
+        message.sender.lastName || ""
+      }`.trim();
+
     return (
       <div
-        className={`mt-5  ${
-          message.sender._id !== userInfo.id ? "text-left" : "text-right"
+        className={`mt-3 flex items-end gap-2 ${
+          isOwn ? "justify-end" : "justify-start"
         }`}
       >
-        {message.messageType === MESSAGE_TYPES.TEXT && (
-          <div
-            className={`${
-              message.sender._id === userInfo.id
-                ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
-                : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
-            } border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
-          >
-            {message.content}
-          </div>
+        {!isOwn && (
+          <Avatar className="h-7 w-7 sm:h-8 sm:w-8 shrink-0">
+            {message.sender.image && (
+              <AvatarImage
+                src={`${HOST}/${message.sender.image}`}
+                alt="profile"
+                className="rounded-full object-cover"
+              />
+            )}
+            <AvatarFallback
+              className={`uppercase text-xs flex ${getColor(
+                message.sender.color
+              )} items-center justify-center rounded-full`}
+            >
+              {senderName.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
         )}
-        {message.messageType === MESSAGE_TYPES.FILE && (
+        <div
+          className={`flex min-w-0 max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] flex-col ${
+            isOwn ? "items-end" : "items-start"
+          }`}
+        >
+          {!isOwn && (
+            <span className="mb-0.5 max-w-full truncate px-1 text-[11px] sm:text-xs text-white/50">
+              {senderName}
+            </span>
+          )}
           <div
-            className={`relative ${
-              message.sender._id === userInfo.id
+            className={`relative border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl shadow-sm break-words text-left max-w-full ${
+              isOwn
                 ? "bg-gradient-to-br from-[#8417ff] to-[#6a11cb] text-white border-transparent rounded-br-md"
                 : "bg-[#2a2b33] text-white/90 border-white/10 rounded-bl-md"
-            } border inline-block px-3 py-1.5 sm:px-3.5 sm:py-2 text-[13px] sm:text-[15px] leading-snug rounded-2xl my-0.5 shadow-sm max-w-[80%] sm:max-w-[65%] lg:max-w-[50%] break-words text-left ml-9`}
+            }`}
           >
-            {message.sender._id === userInfo.id && renderDeleteButton(message)}
-            {checkIfImage(message.fileUrl) ? (
-              <div
-                className="cursor-pointer"
-                onClick={() => {
-                  setShowImage(true);
-                  setImageURL(message.fileUrl);
-                }}
-              >
-                <img
-                  src={`${HOST}/${message.fileUrl}`}
-                  alt=""
-                  height={300}
-                  width={300}
-                  className="max-w-full h-auto"
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-5">
-                <span className="text-white/80 text-3xl bg-black/20 rounded-full p-3">
-                  <MdFolderZip />
-                </span>
-                <span className="break-all min-w-0">{message.fileUrl.split("/").pop()}</span>
-                <span
-                  className="bg-black/20 p-3 text-2xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
-                  onClick={() => downloadFile(message.fileUrl)}
-                >
-                  <IoMdArrowRoundDown />
-                </span>
-              </div>
+            {message.messageType === MESSAGE_TYPES.TEXT && message.content}
+            {message.messageType === MESSAGE_TYPES.FILE && (
+              <>
+                {isOwn && renderDeleteButton(message)}
+                {checkIfImage(message.fileUrl) ? (
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setShowImage(true);
+                      setImageURL(message.fileUrl);
+                    }}
+                  >
+                    <img
+                      src={`${HOST}/${message.fileUrl}`}
+                      alt=""
+                      className="max-w-full h-auto rounded-lg"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="text-white/80 text-2xl bg-black/20 rounded-full p-2.5">
+                      <MdFolderZip />
+                    </span>
+                    <span className="break-all min-w-0 text-xs sm:text-sm">
+                      {message.fileUrl.split("/").pop()}
+                    </span>
+                    <span
+                      className="bg-black/20 p-2.5 text-xl rounded-full hover:bg-black/50 cursor-pointer transition-all duration-300"
+                      onClick={() => downloadFile(message.fileUrl)}
+                    >
+                      <IoMdArrowRoundDown />
+                    </span>
+                  </div>
+                )}
+              </>
             )}
           </div>
-        )}
-        {message.sender._id !== userInfo.id ? (
-          <div className="flex items-center justify-start gap-3">
-            <Avatar className="h-8 w-8">
-              {message.sender.image && (
-                <AvatarImage
-                  src={`${HOST}/${message.sender.image}`}
-                  alt="profile"
-                  className="rounded-full"
-                />
-              )}
-              <AvatarFallback
-                className={`uppercase h-8 w-8 flex ${getColor(
-                  message.sender.color
-                )} items-center justify-center rounded-full`}
-              >
-                {message.sender.firstName.split("").shift()}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-xs sm:text-sm text-white/60">{`${message.sender.firstName} ${message.sender.lastName}`}</span>
-
-            <div className="text-[10px] sm:text-xs text-white/60">
-              {moment(message.timestamp).format("LT")}
-            </div>
-          </div>
-        ) : (
-          <div className="text-[10px] sm:text-xs text-white/60 mt-1">
+          <span className="mt-0.5 px-1 text-[10px] sm:text-[11px] text-white/40">
             {moment(message.timestamp).format("LT")}
-          </div>
-        )}
+          </span>
+        </div>
       </div>
     );
   };
 
   return (
     <div className="flex-1 overflow-y-auto scrollbar-hidden p-3 sm:p-4 sm:px-8 w-full min-w-0">
+      {loadingMessages && selectedChatMessages.length === 0 && (
+        <div className="flex h-full min-h-32 items-center justify-center gap-3 text-sm text-white/40">
+          <Spinner className="h-5 w-5" />
+          Loading messages...
+        </div>
+      )}
       {renderMessages()}
       {selectedChatType === "contact" && typingUsers[selectedChatData._id] && (
         <div className="mt-1 inline-flex items-center gap-1 rounded-2xl rounded-bl-md border border-white/10 bg-[#2a2b33] px-3 py-2.5">

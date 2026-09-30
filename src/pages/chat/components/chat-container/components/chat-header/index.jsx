@@ -1,6 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RiCloseFill } from "react-icons/ri";
-import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
+import {
+  IoInformationCircleOutline,
+  IoNotifications,
+  IoNotificationsOff,
+} from "react-icons/io5";
+import ChannelInfo from "../channel-info";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useAppStore } from "@/store";
 import { HOST } from "@/lib/constants";
@@ -17,6 +23,7 @@ const ChatHeader = () => {
   } = useAppStore();
   const isMuted = mutedChats.includes(selectedChatData._id);
   const navigate = useNavigate();
+  const [infoOpen, setInfoOpen] = useState(false);
   const closeChat = () => {
     if (window.history.state?.idx > 0) navigate(-1);
     else navigate("/chat", { replace: true });
@@ -65,6 +72,11 @@ const ChatHeader = () => {
                 ? `${selectedChatData.firstName} ${selectedChatData.lastName}`
                 : ""}
             </div>
+            {selectedChatType === "channel" && (
+              <div className="text-[11px] sm:text-xs text-neutral-500">
+                {(selectedChatData.members?.length || 0) + 1} members
+              </div>
+            )}
             {selectedChatType === "contact" && (
               <div
                 className={`text-[11px] sm:text-xs flex items-center gap-1 ${
@@ -87,6 +99,15 @@ const ChatHeader = () => {
         </div>
       </div>
       <div className="flex items-center justify-center gap-3 sm:gap-5">
+        {selectedChatType === "channel" && (
+          <button
+            title="Channel info"
+            className="text-neutral-300 hover:text-white focus:outline-none transition-all duration-300"
+            onClick={() => setInfoOpen(true)}
+          >
+            <IoInformationCircleOutline className="text-xl sm:text-2xl" />
+          </button>
+        )}
         <button
           title={isMuted ? "Unmute notifications" : "Mute notifications"}
           className={`focus:outline-none transition-all duration-300 ${
@@ -107,6 +128,9 @@ const ChatHeader = () => {
           <RiCloseFill className="text-2xl sm:text-3xl" />
         </button>
       </div>
+      {selectedChatType === "channel" && (
+        <ChannelInfo open={infoOpen} onOpenChange={setInfoOpen} />
+      )}
     </div>
   );
 };

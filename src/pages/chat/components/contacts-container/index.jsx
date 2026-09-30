@@ -1,3 +1,4 @@
+import { Spinner } from "@/components/common/loader";
 import ContactList from "@/components/common/contact-list";
 import Logo from "@/components/common/logo";
 import ProfileInfo from "./components/profile-info";
@@ -6,7 +7,7 @@ import {
   GET_CONTACTS_WITH_MESSAGES_ROUTE,
   GET_USER_CHANNELS,
 } from "@/lib/constants";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore } from "@/store";
 import NewDM from "./components/new-dm/new-dm";
 import CreateChannel from "./components/create-channel/create-channel";
@@ -18,14 +19,22 @@ const ContactsContainer = () => {
     channels,
     setChannels,
   } = useAppStore();
+  const [loadingContacts, setLoadingContacts] = useState(true);
+  const [loadingChannels, setLoadingChannels] = useState(true);
 
   useEffect(() => {
     const getContactsWithMessages = async () => {
-      const response = await apiClient.get(GET_CONTACTS_WITH_MESSAGES_ROUTE, {
-        withCredentials: true,
-      });
-      if (response.data.contacts) {
-        setDirectMessagesContacts(response.data.contacts);
+      try {
+        const response = await apiClient.get(GET_CONTACTS_WITH_MESSAGES_ROUTE, {
+          withCredentials: true,
+        });
+        if (response.data.contacts) {
+          setDirectMessagesContacts(response.data.contacts);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoadingContacts(false);
       }
     };
     getContactsWithMessages();
@@ -33,11 +42,17 @@ const ContactsContainer = () => {
 
   useEffect(() => {
     const getChannels = async () => {
-      const response = await apiClient.get(GET_USER_CHANNELS, {
-        withCredentials: true,
-      });
-      if (response.data.channels) {
-        setChannels(response.data.channels);
+      try {
+        const response = await apiClient.get(GET_USER_CHANNELS, {
+          withCredentials: true,
+        });
+        if (response.data.channels) {
+          setChannels(response.data.channels);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoadingChannels(false);
       }
     };
     getChannels();
@@ -54,7 +69,13 @@ const ContactsContainer = () => {
           <NewDM />
         </div>
         <div className="max-h-[calc((100dvh-15rem)/2)] overflow-y-auto scrollbar-hidden">
-          <ContactList contacts={directMessagesContacts} />
+          {loadingContacts ? (
+            <ListLoader />
+          ) : directMessagesContacts.length === 0 ? (
+            <EmptyHint text="No conversations yet. Tap + to start one." />
+          ) : (
+            <ContactList contacts={directMessagesContacts} />
+          )}
         </div>
       </div>
       <div className="my-5">
@@ -63,7 +84,13 @@ const ContactsContainer = () => {
           <CreateChannel />
         </div>
         <div className="max-h-[calc((100dvh-15rem)/2)] overflow-y-auto scrollbar-hidden pb-5">
-          <ContactList contacts={channels} isChannel />
+          {loadingChannels ? (
+            <ListLoader />
+          ) : channels.length === 0 ? (
+            <EmptyHint text="No channels yet. Tap + to create one." />
+          ) : (
+            <ContactList contacts={channels} isChannel />
+          )}
         </div>
       </div>
       <ProfileInfo />
@@ -80,3 +107,14 @@ const Title = ({ text }) => {
     </h6>
   );
 };
+
+const ListLoader = () => (
+  <div className="flex items-center gap-3 pl-5 sm:pl-10 py-4 text-sm text-white/40">
+    <Spinner className="h-4 w-4" />
+    Loading...
+  </div>
+);
+
+const EmptyHint = ({ text }) => (
+  <p className="pl-5 pr-4 sm:pl-10 py-3 text-xs text-white/30">{text}</p>
+);

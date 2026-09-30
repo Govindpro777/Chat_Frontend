@@ -1,3 +1,5 @@
+import { Spinner } from "@/components/common/loader";
+import { toast } from "sonner";
 import {
   Tooltip,
   TooltipContent,
@@ -26,6 +28,7 @@ const CreateChannel = () => {
   const [allContacts, setAllContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [channelName, setChannelName] = useState("");
+  const [creating, setCreating] = useState(false);
   const socket = useSocket();
   const { addChannel } = useAppStore();
 
@@ -40,20 +43,30 @@ const CreateChannel = () => {
   }, []);
 
   const createChannel = async () => {
-    const response = await apiClient.post(
-      CREATE_CHANNEL,
-      {
-        name: channelName,
-        members: selectedContacts.map((contact) => contact.value),
-      },
-      { withCredentials: true }
-    );
-    if (response.status === 201) {
-      setChannelName("");
-      setSelectedContacts([]);
-      setNewChannelModal(false);
-      addChannel(response.data.channel);
-      socket.emit("add-channel-notify", response.data.channel);
+    if (!channelName.trim()) return;
+    setCreating(true);
+    try {
+      const response = await apiClient.post(
+        CREATE_CHANNEL,
+        {
+          name: channelName.trim(),
+          members: selectedContacts.map((contact) => contact.value),
+        },
+        { withCredentials: true }
+      );
+      if (response.status === 201) {
+        setChannelName("");
+        setSelectedContacts([]);
+        setNewChannelModal(false);
+        addChannel(response.data.channel);
+        socket.emit("add-channel-notify", response.data.channel);
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Could not create the channel."
+      );
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -76,14 +89,14 @@ const CreateChannel = () => {
         <DialogDescription className="hidden">
           Please insert details
         </DialogDescription>
-        <DialogContent className="bg-[#181920] border-none text-white w-[92vw] max-w-[400px] h-max max-h-[85dvh] flex flex-col">
+        <DialogContent className="bg-[#181920] border-none text-white w-[92vw] max-w-[400px] h-max max-h-[85dvh] overflow-y-auto flex flex-col gap-3 p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Create a new Channel</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">Create a new Channel</DialogTitle>
           </DialogHeader>
           <div>
             <Input
               placeholder="Channel Name"
-              className="rounded-lg py-6 px-4 bg-[#2c2e3b] border-none"
+              className="rounded-lg h-11 px-4 bg-[#2c2e3b] border-none"
               value={channelName}
               onChange={(e) => setChannelName(e.target.value)}
             />
@@ -105,9 +118,11 @@ const CreateChannel = () => {
           <div>
             <Button
               onClick={createChannel}
-              className=" w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300"
+              disabled={creating || !channelName.trim()}
+              className=" w-full gap-2 bg-purple-700 hover:bg-purple-900 transition-all duration-300"
             >
-              Create Channel
+              {creating && <Spinner className="h-4 w-4" />}
+              {creating ? "Creating..." : "Create Channel"}
             </Button>
           </div>
         </DialogContent>

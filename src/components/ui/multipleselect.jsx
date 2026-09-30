@@ -355,7 +355,7 @@ const MultipleSelector = React.forwardRef(
         <div className="relative">
           {open && (
             <CommandList
-              className="absolute top-1 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in"
+              className="mt-2 w-full max-h-40 sm:max-h-48 overflow-y-auto rounded-lg border border-white/10 bg-[#22232d] text-white shadow-md outline-none animate-in scrollbar-hidden"
               onMouseLeave={() => {
                 mouseOn.current = false;
               }}
@@ -403,7 +403,7 @@ const MultipleSelector = React.forwardRef(
                                 onChange?.(newOptions);
                               }}
                               className={cn(
-                                "cursor-pointer",
+                                "cursor-pointer text-white aria-selected:bg-[#8417ff]/30 aria-selected:text-white",
                                 option.disable &&
                                   "cursor-default text-muted-foreground"
                               )}

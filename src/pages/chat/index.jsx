@@ -19,6 +19,7 @@ const Chat = () => {
     selectedChatData,
     directMessagesContacts,
     channels,
+    channelsLoaded,
     setSelectedChatType,
     setSelectedChatData,
     setSelectedChatMessages,
@@ -46,6 +47,9 @@ const Chat = () => {
       setSelectedChatMessages([]);
       setSelectedChatType(chatType);
       setSelectedChatData(found);
+    } else if (chatType === "channel" && channelsLoaded) {
+      // Channel was deleted or we were removed from it
+      navigate("/chat", { replace: true });
     }
   }, [
     chatType,
@@ -54,6 +58,7 @@ const Chat = () => {
     selectedChatType,
     directMessagesContacts,
     channels,
+    channelsLoaded,
   ]);
   useEffect(() => {
     if (!userInfo.profileSetup) {

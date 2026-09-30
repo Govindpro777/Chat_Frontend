@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerServiceWorker } from "@/lib/notifications";
 import { removePushSubscription, syncPushSubscription } from "@/lib/push";
+import { FullPageLoader, TopProgressBar } from "@/components/common/loader";
 import {
   BrowserRouter as Router,
   Routes,
@@ -91,11 +92,17 @@ function App() {
   }, [userInfo, setUserInfo]);
 
   if (loading) {
-    return <div>Loading...</div>; // Show a loading indicator while fetching user data
+    return (
+      <>
+        <TopProgressBar />
+        <FullPageLoader />
+      </>
+    );
   }
 
   return (
     <Router>
+      <TopProgressBar />
       <NotificationBridge />
       <Routes>
         <Route

@@ -1,3 +1,4 @@
+import { Spinner } from "@/components/common/loader";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Dialog,
@@ -28,11 +29,13 @@ const NewDM = () => {
   const { chatId } = useParams();
   const [searchedContacts, setsearchedContacts] = useState([]);
   const [openNewContactModal, setOpenNewContactModal] = useState(false);
+  const [searching, setSearching] = useState(false);
   const { setSelectedChatType, setSelectedChatData } = useAppStore();
 
   const searchContacts = async (searchTerm) => {
     try {
       if (searchTerm.length > 0) {
+        setSearching(true);
         const response = await apiClient.post(
           SEARCH_CONTACTS_ROUTES,
           { searchTerm },
@@ -44,6 +47,8 @@ const NewDM = () => {
       } else setsearchedContacts([]);
     } catch (error) {
       console.log(error);
+    } finally {
+      setSearching(false);
     }
   };
 
@@ -87,6 +92,12 @@ const NewDM = () => {
             />
           </div>
 
+          {searching && (
+            <div className="flex items-center gap-2 text-sm text-white/50">
+              <Spinner className="h-4 w-4" />
+              Searching...
+            </div>
+          )}
           <ScrollArea className="h-[250px]">
             <div className="flex flex-col gap-5">
               {searchedContacts.map((contact) => (

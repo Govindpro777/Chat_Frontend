@@ -23,7 +23,30 @@ export const createChatSlice = (set, get) => ({
   setDownloadProgress: (downloadProgress) => set({ downloadProgress }),
   setSelectedChatType: (selectedChatType) => set({ selectedChatType }),
   setSelectedChatData: (selectedChatData) => set({ selectedChatData }),
-  setChannels: (channels) => set({ channels }),
+  channelsLoaded: false,
+  setChannels: (channels) => set({ channels, channelsLoaded: true }),
+  updateChannelInList: (channel) => {
+    const { channels, selectedChatType, selectedChatData } = get();
+    set({
+      channels: channels.map((c) => (c._id === channel._id ? channel : c)),
+      ...(selectedChatType === "channel" && selectedChatData?._id === channel._id
+        ? { selectedChatData: channel }
+        : {}),
+    });
+  },
+  removeChannel: (channelId) => {
+    const { channels, selectedChatType, selectedChatData } = get();
+    set({
+      channels: channels.filter((c) => c._id !== channelId),
+      ...(selectedChatType === "channel" && selectedChatData?._id === channelId
+        ? {
+            selectedChatData: undefined,
+            selectedChatType: undefined,
+            selectedChatMessages: [],
+          }
+        : {}),
+    });
+  },
   setSelectedChatMessages: (selectedChatMessages) =>
     set({ selectedChatMessages }),
   setDirectMessagesContacts: (directMessagesContacts) =>
@@ -73,7 +96,7 @@ export const createChatSlice = (set, get) => ({
     });
   },
   addChannel: (channel) => {
-    const channels = get().channels;
+    const channels = get().channels.filter((c) => c._id !== channel._id);
     set({ channels: [channel, ...channels] });
   },
   addContactInDMContacts: (message) => {

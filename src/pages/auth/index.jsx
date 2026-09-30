@@ -1,3 +1,4 @@
+import { Spinner } from "@/components/common/loader";
 import Background from "../../assets/login2.png";
 import Victory from "../../assets/victory.svg";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,9 +44,12 @@ const Auth = () => {
     }
     return true;
   };
+  const [submitting, setSubmitting] = useState(false);
+
   const handleLogin = async () => {
     try {
       if (validateLogin()) {
+        setSubmitting(true);
         const response = await apiClient.post(
           LOGIN_ROUTE,
           { email, password },
@@ -62,12 +66,15 @@ const Auth = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleSignup = async () => {
     try {
       if (validateSignup()) {
+        setSubmitting(true);
         const response = await apiClient.post(
           SIGNUP_ROUTE,
           {
@@ -84,6 +91,8 @@ const Auth = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -130,8 +139,13 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Button className="rounded-full p-6" onClick={handleLogin}>
-                  Login
+                <Button
+                  className="rounded-full p-6 gap-2"
+                  onClick={handleLogin}
+                  disabled={submitting}
+                >
+                  {submitting && <Spinner className="h-4 w-4" />}
+                  {submitting ? "Logging in..." : "Login"}
                 </Button>
               </TabsContent>
               <TabsContent value="signup" className="flex flex-col gap-5 ">
@@ -154,8 +168,13 @@ const Auth = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
-                <Button className="rounded-full p-6" onClick={handleSignup}>
-                  Signup
+                <Button
+                  className="rounded-full p-6 gap-2"
+                  onClick={handleSignup}
+                  disabled={submitting}
+                >
+                  {submitting && <Spinner className="h-4 w-4" />}
+                  {submitting ? "Creating account..." : "Signup"}
                 </Button>
               </TabsContent>
             </Tabs>
