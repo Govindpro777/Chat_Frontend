@@ -1,5 +1,6 @@
 import { HOST, MESSAGE_TYPES, SOCKET_HOST } from "@/lib/constants";
 import { playNotificationSound, showNotification } from "@/lib/notifications";
+import { flushOutbox } from "@/lib/outbox";
 import { useAppStore } from "@/store";
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
@@ -39,13 +40,42 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (userInfo) {
-      socket.current = io(SOCKET_HOST, {
+      const current = io(SOCKET_HOST, {
         withCredentials: true,
         query: { userId: userInfo.id },
+        reconnectionDelayMax: 5000,
       });
-      socket.current.on("connect", () => {
-        console.log("Connected to socket server");
+      socket.current = current;
+
+      // Connection state drives the banner, the offline queue and re-syncing
+      let hasConnectedOnce = false;
+      const { setSocketStatus, bumpReconnect } = useAppStore.getState();
+      setSocketStatus("connecting");
+
+      current.on("connect", () => {
+        setSocketStatus("connected");
+        if (hasConnectedOnce) bumpReconnect(); // refetch what we missed
+        hasConnectedOnce = true;
+        flushOutbox(current);
       });
+      current.on("disconnect", (reason) => {
+        setSocketStatus("disconnected");
+        // The server closed it on purpose; socket.io won't retry by itself
+        if (reason === "io server disconnect") current.connect();
+      });
+      current.on("connect_error", () => setSocketStatus("disconnected"));
+      current.io.on("reconnect_attempt", () => setSocketStatus("reconnecting"));
+
+      const reconnectNow = () => {
+        if (!current.connected) current.connect();
+      };
+      const handleOffline = () => setSocketStatus("disconnected");
+      const handleVisible = () => {
+        if (!document.hidden) reconnectNow();
+      };
+      window.addEventListener("online", reconnectNow);
+      window.addEventListener("offline", handleOffline);
+      document.addEventListener("visibilitychange", handleVisible);
 
       const handleReceiveMessage = (message) => {
         // Access the latest state values
@@ -54,7 +84,11 @@ export const SocketProvider = ({ children }) => {
           selectedChatType: currentChatType,
           addMessage,
           addContactInDMContacts,
+          removeFromOutbox,
         } = useAppStore.getState();
+
+        // Our own message coming back from the server is no longer pending
+        if (message.clientId) removeFromOutbox(message.clientId);
 
         if (
           currentChatType !== undefined &&
@@ -82,7 +116,10 @@ export const SocketProvider = ({ children }) => {
           selectedChatType,
           addMessage,
           addChannelInChannelLists,
+          removeFromOutbox,
         } = useAppStore.getState();
+
+        if (message.clientId) removeFromOutbox(message.clientId);
 
         if (
           selectedChatType !== undefined &&
@@ -138,6 +175,10 @@ export const SocketProvider = ({ children }) => {
         useAppStore.getState().removeMessage(messageId);
       };
 
+      const handleMessageReaction = ({ messageId, reactions }) => {
+        useAppStore.getState().setMessageReactions(messageId, reactions);
+      };
+
       const handleChannelUpdated = (channel) => {
         useAppStore.getState().updateChannelInList(channel);
       };
@@ -145,6 +186,7 @@ export const SocketProvider = ({ children }) => {
         useAppStore.getState().removeChannel(channelId);
       };
 
+      socket.current.on("message-reaction", handleMessageReaction);
       socket.current.on("channel-updated", handleChannelUpdated);
       socket.current.on("channel-deleted", handleChannelDeleted);
       socket.current.on("message-deleted", handleMessageDeleted);
@@ -157,7 +199,10 @@ export const SocketProvider = ({ children }) => {
 
       return () => {
         Object.values(typingTimers).forEach(clearTimeout);
-        socket.current.disconnect();
+        window.removeEventListener("online", reconnectNow);
+        window.removeEventListener("offline", handleOffline);
+        document.removeEventListener("visibilitychange", handleVisible);
+        current.disconnect();
       };
     }
   }, [userInfo]);

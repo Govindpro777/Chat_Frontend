@@ -13,6 +13,7 @@ export const REMOVE_PROFILE_IMAGE_ROUTE = `${AUTH_ROUTES}/remove-profile-image`;
 export const MESSAGES_ROUTES = "/api/messages";
 export const FETCH_ALL_MESSAGES_ROUTE = `${MESSAGES_ROUTES}/get-messages`;
 export const UPLOAD_FILE = `${MESSAGES_ROUTES}/upload-file`;
+export const SEARCH_MESSAGES = `${MESSAGES_ROUTES}/search`;
 export const DELETE_FILE_MESSAGE = `${MESSAGES_ROUTES}/delete-file`;
 
 export const CHANNEL_ROUTES = "/api/channel";

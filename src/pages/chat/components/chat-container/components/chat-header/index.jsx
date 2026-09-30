@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { RiCloseFill } from "react-icons/ri";
 import {
   IoInformationCircleOutline,
+  IoSearch,
   IoNotifications,
   IoNotificationsOff,
 } from "react-icons/io5";
@@ -20,7 +21,23 @@ const ChatHeader = () => {
     typingUsers,
     mutedChats,
     toggleChatMute,
+    chatSearch,
+    setChatSearch,
+    resetChatSearch,
   } = useAppStore();
+  const searchOpen =
+    chatSearch.open && chatSearch.chatId === selectedChatData._id;
+  const toggleSearch = () =>
+    searchOpen
+      ? resetChatSearch()
+      : setChatSearch({
+          open: true,
+          query: "",
+          index: 0,
+          total: 0,
+          targetId: null,
+          chatId: selectedChatData._id,
+        });
   const isMuted = mutedChats.includes(selectedChatData._id);
   const navigate = useNavigate();
   const [infoOpen, setInfoOpen] = useState(false);
@@ -99,6 +116,15 @@ const ChatHeader = () => {
         </div>
       </div>
       <div className="flex items-center justify-center gap-3 sm:gap-5">
+        <button
+          title="Search in chat"
+          className={`focus:outline-none transition-all duration-300 ${
+            searchOpen ? "text-[#b47cff]" : "text-neutral-300 hover:text-white"
+          }`}
+          onClick={toggleSearch}
+        >
+          <IoSearch className="text-xl sm:text-2xl" />
+        </button>
         {selectedChatType === "channel" && (
           <button
             title="Channel info"

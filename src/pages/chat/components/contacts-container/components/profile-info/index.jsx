@@ -33,6 +33,7 @@ const ProfileInfo = () => {
       );
       if (response.status === 200) {
         localStorage.removeItem("access-token");
+        useAppStore.setState({ outbox: [] });
         navigate("/auth", { replace: true });
         setUserInfo(undefined);
       }

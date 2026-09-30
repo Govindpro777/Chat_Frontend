@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { registerServiceWorker } from "@/lib/notifications";
 import { removePushSubscription, syncPushSubscription } from "@/lib/push";
 import { FullPageLoader, TopProgressBar } from "@/components/common/loader";
+import ConnectionBanner from "@/components/common/connection-banner";
 import {
   BrowserRouter as Router,
   Routes,
@@ -103,6 +104,7 @@ function App() {
   return (
     <Router>
       <TopProgressBar />
+      <ConnectionBanner />
       <NotificationBridge />
       <Routes>
         <Route

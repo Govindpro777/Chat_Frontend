@@ -23,7 +23,7 @@ import {
 } from "@/lib/constants";
 import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
-import { Spinner } from "@/components/common/loader";
+import { Skeleton, Spinner } from "@/components/common/loader";
 
 const displayName = (user) =>
   `${user.firstName || user.email} ${user.lastName || ""}`.trim();
@@ -222,9 +222,16 @@ const ChannelInfo = ({ open, onOpenChange }) => {
               </div>
             ))}
             {!details && (
-              <div className="flex items-center gap-2 py-3 text-sm text-white/40">
-                <Spinner className="h-4 w-4" />
-                Loading members...
+              <div className="flex flex-col gap-3 py-2" aria-hidden>
+                {[0, 1].map((i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                    <div className="flex flex-1 flex-col gap-2">
+                      <Skeleton className="h-3 w-1/2" />
+                      <Skeleton className="h-2.5 w-1/3" />
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

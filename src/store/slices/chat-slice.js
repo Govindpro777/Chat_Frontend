@@ -4,6 +4,30 @@ export const createChatSlice = (set, get) => ({
   selectedChatMessages: [],
   directMessagesContacts: [],
   channels: [],
+  // Messages waiting to be delivered (offline queue / failed sends)
+  outbox: [],
+  addToOutbox: (item) => set({ outbox: [...get().outbox, item] }),
+  updateOutbox: (clientId, patch) =>
+    set({
+      outbox: get().outbox.map((i) =>
+        i.clientId === clientId ? { ...i, ...patch } : i
+      ),
+    }),
+  removeFromOutbox: (clientId) =>
+    set({ outbox: get().outbox.filter((i) => i.clientId !== clientId) }),
+  setMessageReactions: (messageId, reactions) =>
+    set({
+      selectedChatMessages: get().selectedChatMessages.map((m) =>
+        m._id === messageId ? { ...m, reactions } : m
+      ),
+    }),
+  // In-chat search; chatId ties the search to the chat it was opened in
+  chatSearch: { open: false, query: "", index: 0, total: 0, targetId: null, chatId: null },
+  setChatSearch: (patch) => set({ chatSearch: { ...get().chatSearch, ...patch } }),
+  resetChatSearch: () =>
+    set({
+      chatSearch: { open: false, query: "", index: 0, total: 0, targetId: null, chatId: null },
+    }),
   typingUsers: {},
   setTyping: (userId, isTyping) => {
     const typingUsers = { ...get().typingUsers };
@@ -77,6 +101,9 @@ export const createChatSlice = (set, get) => ({
     }),
   addMessage: (message) => {
     const selectedChatMessages = get().selectedChatMessages;
+    if (message._id && selectedChatMessages.some((m) => m._id === message._id)) {
+      return;
+    }
     const selectedChatType = get().selectedChatType;
     set({
       selectedChatMessages: [

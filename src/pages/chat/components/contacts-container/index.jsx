@@ -1,4 +1,5 @@
-import { Spinner } from "@/components/common/loader";
+import { ContactsSkeleton } from "@/components/common/loader";
+import GlobalSearch from "./components/global-search";
 import ContactList from "@/components/common/contact-list";
 import Logo from "@/components/common/logo";
 import ProfileInfo from "./components/profile-info";
@@ -7,7 +8,7 @@ import {
   GET_CONTACTS_WITH_MESSAGES_ROUTE,
   GET_USER_CHANNELS,
 } from "@/lib/constants";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppStore } from "@/store";
 import NewDM from "./components/new-dm/new-dm";
 import CreateChannel from "./components/create-channel/create-channel";
@@ -18,7 +19,10 @@ const ContactsContainer = () => {
     directMessagesContacts,
     channels,
     setChannels,
+    reconnectCount,
   } = useAppStore();
+  const [searching, setSearching] = useState(false);
+  const handleSearchActive = useCallback((value) => setSearching(value), []);
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [loadingChannels, setLoadingChannels] = useState(true);
 
@@ -38,7 +42,7 @@ const ContactsContainer = () => {
       }
     };
     getContactsWithMessages();
-  }, [setDirectMessagesContacts]);
+  }, [setDirectMessagesContacts, reconnectCount]);
 
   useEffect(() => {
     const getChannels = async () => {
@@ -56,21 +60,23 @@ const ContactsContainer = () => {
       }
     };
     getChannels();
-  }, [setChannels]);
+  }, [setChannels, reconnectCount]);
 
   return (
     <div className="relative w-full md:w-[35vw] md:shrink-0 lg:w-[30vw] xl:w-[22vw] xl:min-w-[280px] bg-[#1b1c24] border-r-2 border-[#2f303b] pb-16 overflow-hidden">
       <div className=" pt-3">
         <Logo />
       </div>
+      <GlobalSearch onActiveChange={handleSearchActive} />
+      <div className={searching ? "hidden" : ""}>
       <div className="my-5">
         <div className="flex items-center justify-between pr-5 sm:pr-10">
           <Title text="Direct Messages" />
           <NewDM />
         </div>
-        <div className="max-h-[calc((100dvh-15rem)/2)] overflow-y-auto scrollbar-hidden">
+        <div className="max-h-[calc((100dvh-19rem)/2)] overflow-y-auto scrollbar-hidden">
           {loadingContacts ? (
-            <ListLoader />
+            <ContactsSkeleton rows={3} />
           ) : directMessagesContacts.length === 0 ? (
             <EmptyHint text="No conversations yet. Tap + to start one." />
           ) : (
@@ -83,15 +89,16 @@ const ContactsContainer = () => {
           <Title text="Channels" />
           <CreateChannel />
         </div>
-        <div className="max-h-[calc((100dvh-15rem)/2)] overflow-y-auto scrollbar-hidden pb-5">
+        <div className="max-h-[calc((100dvh-19rem)/2)] overflow-y-auto scrollbar-hidden pb-5">
           {loadingChannels ? (
-            <ListLoader />
+            <ContactsSkeleton rows={3} />
           ) : channels.length === 0 ? (
             <EmptyHint text="No channels yet. Tap + to create one." />
           ) : (
             <ContactList contacts={channels} isChannel />
           )}
         </div>
+      </div>
       </div>
       <ProfileInfo />
     </div>
@@ -107,13 +114,6 @@ const Title = ({ text }) => {
     </h6>
   );
 };
-
-const ListLoader = () => (
-  <div className="flex items-center gap-3 pl-5 sm:pl-10 py-4 text-sm text-white/40">
-    <Spinner className="h-4 w-4" />
-    Loading...
-  </div>
-);
 
 const EmptyHint = ({ text }) => (
   <p className="pl-5 pr-4 sm:pl-10 py-3 text-xs text-white/30">{text}</p>

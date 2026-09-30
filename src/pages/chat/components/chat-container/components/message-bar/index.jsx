@@ -7,6 +7,7 @@ import { useAppStore } from "@/store";
 import { useSocket } from "@/contexts/SocketContext";
 import { MESSAGE_TYPES, UPLOAD_FILE } from "@/lib/constants";
 import apiClient from "@/lib/api-client";
+import { queueMessage } from "@/lib/outbox";
 
 const MessageBar = () => {
   const emojiRef = useRef();
@@ -69,28 +70,17 @@ const MessageBar = () => {
     }
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     clearTimeout(typingTimeout.current);
     emitTyping(false);
-    if (selectedChatType === "contact") {
-      socket.emit("sendMessage", {
-        sender: userInfo.id,
-        content: message,
-        recipient: selectedChatData._id,
-        messageType: MESSAGE_TYPES.TEXT,
-        audioUrl: undefined,
-        fileUrl: undefined,
-      });
-    } else if (selectedChatType === "channel") {
-      socket.emit("send-channel-message", {
-        sender: userInfo.id,
-        content: message,
-        messageType: MESSAGE_TYPES.TEXT,
-        audioUrl: undefined,
-        fileUrl: undefined,
-        channelId: selectedChatData._id,
-      });
-    }
+    const content = message.trim();
+    if (!content) return;
+    queueMessage(socket, {
+      chatType: selectedChatType,
+      chatId: selectedChatData._id,
+      content,
+      messageType: MESSAGE_TYPES.TEXT,
+    });
     setMessage("");
   };
 
@@ -111,25 +101,12 @@ const MessageBar = () => {
 
         if (response.status === 200 && response.data) {
           setIsUploading(false);
-          if (selectedChatType === "contact") {
-            socket.emit("sendMessage", {
-              sender: userInfo.id,
-              content: undefined,
-              recipient: selectedChatData._id,
-              messageType: MESSAGE_TYPES.FILE,
-              audioUrl: undefined,
-              fileUrl: response.data.filePath,
-            });
-          } else if (selectedChatType === "channel") {
-            socket.emit("send-channel-message", {
-              sender: userInfo.id,
-              content: undefined,
-              messageType: MESSAGE_TYPES.FILE,
-              audioUrl: undefined,
-              fileUrl: response.data.filePath,
-              channelId: selectedChatData._id,
-            });
-          }
+          queueMessage(socket, {
+            chatType: selectedChatType,
+            chatId: selectedChatData._id,
+            messageType: MESSAGE_TYPES.FILE,
+            fileUrl: response.data.filePath,
+          });
         }
       }
     } catch (error) {
@@ -153,6 +130,12 @@ const MessageBar = () => {
           placeholder="Enter message"
           value={message}
           onChange={handleMessageChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
         />
         <button
           className="text-neutral-300 focus:border-none focus:outline-none focus:text-white transition-all duration-300"
